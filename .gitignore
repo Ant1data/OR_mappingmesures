@@ -1,0 +1,38 @@
+# ─── Données téléchargées (volumineuses — non versionnées) ───────────────────
+out/
+*.csv
+
+# ─── Sorties générées (images & vidéos) ──────────────────────────────────────
+last_frame/
+videos/
+
+# ─── Variables d'environnement (secrets) ─────────────────────────────────────
+.env
+
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ─── Environnements virtuels ──────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.conda/
+
+# ─── Outils & éditeurs ───────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# ─── Cache contextily (tuiles cartographiques) ────────────────────────────────
+~/.cache/contextily/
+
+# ─── Fichiers temporaires moviepy ─────────────────────────────────────────────
+TEMP_MPY_wvf_snd.mp3
