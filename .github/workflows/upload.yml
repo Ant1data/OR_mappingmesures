@@ -66,12 +66,31 @@ jobs:
       - name: Créer les dossiers de sortie
         run: mkdir -p out videos last_frame
 
-      # ── 5. Télécharger la base complète OpenRadiation ────────────────────────
-      - name: Télécharger la base complète OpenRadiation
+      # ── 5. Télécharger et extraire la base complète OpenRadiation ──────────────
+      - name: Télécharger et extraire la base OpenRadiation
         run: |
+          # Téléchargement de l'archive
           wget -q \
-            "https://request.openradiation.net/measurements_withoutEnclosedObject.csv" \
-            -O "$DATA_DIR/measurements_withoutEnclosedObject.csv"
+            "https://request.openradiation.net/openradiation_dataset.tar.gz" \
+            -O /tmp/openradiation_dataset.tar.gz
+
+          # 1re extraction : tar.gz → dossier intermédiaire /tmp/or_extract/
+          mkdir -p /tmp/or_extract
+          tar xzf /tmp/openradiation_dataset.tar.gz -C /tmp/or_extract/
+          echo "── Contenu après 1re extraction ──"
+          find /tmp/or_extract -maxdepth 3 | head -40
+
+          # 2e extraction : archive interne si présente, sinon copie depuis out/
+          INNER=$(find /tmp/or_extract -maxdepth 3 \( -name "*.tar.gz" -o -name "*.tar" \) | head -1)
+          if [ -n "$INNER" ]; then
+            echo "Archive interne détectée : $INNER"
+            tar xf "$INNER" -C "$DATA_DIR"
+          else
+            echo "Aucune archive interne — copie depuis le sous-dossier out/"
+            cp /tmp/or_extract/out/measurements_withoutEnclosedObject.csv "$DATA_DIR/"
+          fi
+
+          ls -lah "$DATA_DIR"
 
       # ── 6. Générer les vidéos ─────────────────────────────────────────────────
       - name: Générer les vidéos (zones ${{ inputs.zones || 'World Europe France' }})
