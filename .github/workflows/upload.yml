@@ -1,0 +1,102 @@
+name: Upload mensuel OpenRadiation YouTube
+
+on:
+  # ── Déclenchement automatique : 1er de chaque mois à 07h00 UTC ──────────────
+  schedule:
+    - cron: "0 7 1 * *"
+
+  # ── Déclenchement manuel (tests ou rattrapage) ───────────────────────────────
+  workflow_dispatch:
+    inputs:
+      zones:
+        description: "Zones à générer et uploader (séparées par des espaces)"
+        required: false
+        default: "World Europe France"
+      privacy:
+        description: "Visibilité YouTube"
+        required: false
+        default: "public"
+        type: choice
+        options: [public, unlisted, private]
+
+jobs:
+  generate-and-upload:
+    name: Générer les vidéos et uploader sur YouTube
+    runs-on: ubuntu-latest
+    timeout-minutes: 120   # les vidéos peuvent prendre ~1h en CI
+
+    env:
+      YOUTUBE_TOKEN_JSON:  ${{ secrets.YOUTUBE_TOKEN_JSON }}
+      LOG_LEVEL:           INFO
+      # Chemins utilisés par les scripts Python
+      DATA_DIR:            ${{ github.workspace }}/out
+      VIDEOS_DIR:          ${{ github.workspace }}/videos
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      # ── 2. Dépendances système ────────────────────────────────────────────────
+      - name: Installer ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+
+      # ── 3. Python ────────────────────────────────────────────────────────────
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Installer les dépendances Python
+        run: pip install -r requirements.txt
+
+      # ── 4. Préparer les dossiers de sortie ───────────────────────────────────
+      - name: Créer les dossiers de sortie
+        run: mkdir -p out videos last_frame
+
+      # ── 5. Télécharger la base complète OpenRadiation ────────────────────────
+      - name: Télécharger la base complète OpenRadiation
+        run: |
+          wget -q \
+            "https://request.openradiation.net/measurements_withoutEnclosedObject.csv" \
+            -O "$DATA_DIR/measurements_withoutEnclosedObject.csv"
+
+      # ── 6. Générer les vidéos ─────────────────────────────────────────────────
+      - name: Générer les vidéos (zones ${{ inputs.zones || 'World Europe France' }})
+        run: |
+          ZONES="${{ inputs.zones || 'World Europe France' }}"
+          python COA_video_groundlevel.py \
+            --output-dir "$VIDEOS_DIR" \
+            --zones $ZONES
+
+      # ── 7. Uploader sur YouTube ───────────────────────────────────────────────
+      - name: Upload YouTube — World
+        if: contains(inputs.zones || 'World Europe France', 'World')
+        run: |
+          python upload_youtube.py \
+            --zone World \
+            --privacy "${{ inputs.privacy || 'public' }}"
+
+      - name: Upload YouTube — Europe
+        if: contains(inputs.zones || 'World Europe France', 'Europe')
+        run: |
+          python upload_youtube.py \
+            --zone Europe \
+            --privacy "${{ inputs.privacy || 'public' }}"
+
+      - name: Upload YouTube — France
+        if: contains(inputs.zones || 'World Europe France', 'France')
+        run: |
+          python upload_youtube.py \
+            --zone France \
+            --privacy "${{ inputs.privacy || 'public' }}"
+
+      # ── 8. Archiver les vidéos en artefact (optionnel, 7 jours) ──────────────
+      - name: Archiver les vidéos générées
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos-${{ github.run_id }}
+          path: videos/*.mp4
+          retention-days: 7

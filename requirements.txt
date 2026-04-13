@@ -1,23 +1,8 @@
-# ─── Données / calcul ────────────────────────────────────────────────────────
 pandas>=2.0
 numpy>=1.26
-
-# ─── Visualisation statique ───────────────────────────────────────────────────
 matplotlib>=3.8
-contextily>=1.6          # tuiles OpenStreetMap pour Matplotlib
-pyproj>=3.6              # projections cartographiques
-
-# ─── Visualisation interactive ───────────────────────────────────────────────
-plotly>=5.20
-dash>=2.17
-
-# ─── Génération vidéo ────────────────────────────────────────────────────────
-moviepy>=1.0.3,<2.0
-kaleido>=0.2.1           # export PNG depuis Plotly (requis pour les frames vidéo)
-
-# ─── Export Word ─────────────────────────────────────────────────────────────
-python-docx>=1.1
-
-# ─── Infrastructure CI ───────────────────────────────────────────────────────
-python-dotenv>=1.0       # chargement optionnel du fichier .env
-requests>=2.31           # téléchargement données OpenRadiation API
+contextily>=1.6
+pyproj>=3.6
+python-dotenv>=1.0
+google-api-python-client>=2.120
+google-auth-oauthlib>=1.2
