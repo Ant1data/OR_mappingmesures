@@ -1,5 +1,5 @@
 """
-COA_video_groundlevel.py — Génère des vidéos MP4 animées des mesures sol OpenRadiation.
+OR_video_groundlevel.py — Génère des vidéos MP4 animées des mesures sol OpenRadiation.
 
 Rendu des frames via matplotlib + contextily :
   - Tuiles cartographiques téléchargées UNE SEULE FOIS par zone (cache contextily).

@@ -38,8 +38,19 @@ jobs:
         uses: actions/checkout@v4
 
       # ── 2. Dépendances système ────────────────────────────────────────────────
-      - name: Installer ffmpeg
-        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Installer les dépendances système
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            ffmpeg \
+            gdal-bin \
+            libgdal-dev \
+            proj-bin \
+            libproj-dev \
+            libgeos-dev \
+            libfreetype6-dev \
+            pkg-config \
+            build-essential
 
       # ── 3. Python ────────────────────────────────────────────────────────────
       - name: Configurer Python 3.11
@@ -74,7 +85,17 @@ jobs:
           python -X faulthandler OR_video_groundlevel.py \
             --csv "$DATA_DIR/measurements_withoutEnclosedObject.csv" \
             --output-dir "$VIDEOS_DIR" \
-            --zones $ZONES
+            --zones $ZONES 2>&1 | tee generation.log
+
+      # ── 6b. Archiver le log de génération (toujours, pour debug) ─────────────
+      - name: Archiver le log de génération
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generation-log-${{ github.run_id }}
+          path: generation.log
+          retention-days: 7
+          if-no-files-found: warn
 
       # ── 7. Uploader sur YouTube ───────────────────────────────────────────────
       - name: Upload YouTube — World
