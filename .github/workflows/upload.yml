@@ -65,8 +65,14 @@ jobs:
       # ── 6. Générer les vidéos ─────────────────────────────────────────────────
       - name: Générer les vidéos (zones ${{ inputs.zones || 'World Europe France' }})
         run: |
+          set -euxo pipefail
+          python -V
+          echo "DATA_DIR=$DATA_DIR"
+          echo "VIDEOS_DIR=$VIDEOS_DIR"
+          ls -lah "$DATA_DIR"
           ZONES="${{ inputs.zones || 'World Europe France' }}"
-          python COA_video_groundlevel.py \
+          python -X faulthandler OR_video_groundlevel.py \
+            --csv "$DATA_DIR/measurements_withoutEnclosedObject.csv" \
             --output-dir "$VIDEOS_DIR" \
             --zones $ZONES
 
@@ -100,3 +106,4 @@ jobs:
           name: videos-${{ github.run_id }}
           path: videos/*.mp4
           retention-days: 7
+          if-no-files-found: warn

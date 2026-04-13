@@ -8,6 +8,7 @@ Rendu des frames via matplotlib + contextily :
 """
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -141,8 +142,12 @@ def main() -> int:
     videos_dir.mkdir(parents=True, exist_ok=True)
 
     if not csv_path.exists():
-        log.error("Fichier CSV introuvable : %s", csv_path)
-        return 1
+        raise FileNotFoundError(
+            f"Fichier CSV introuvable : {csv_path}\n"
+            f"  DATA_DIR       = {os.environ.get('DATA_DIR', '(non défini)')}\n"
+            f"  Répertoire courant = {Path.cwd()}\n"
+            f"  Contenu du dossier parent : {list(csv_path.parent.iterdir()) if csv_path.parent.exists() else '(dossier absent)'}"
+        )
 
     # ── Chargement des données ────────────────────────────────────────────────
     data = load_measurements(
