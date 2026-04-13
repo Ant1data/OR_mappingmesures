@@ -6,8 +6,10 @@ out/
 last_frame/
 videos/
 
-# ─── Variables d'environnement (secrets) ─────────────────────────────────────
+# ─── Variables d'environnement et secrets OAuth ──────────────────────────────
 .env
+client_secret.json   # credentials Google OAuth2 — NE PAS VERSIONNER
+token.json           # token OAuth2 YouTube — NE PAS VERSIONNER
 
 # ─── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
@@ -36,3 +38,6 @@ Thumbs.db
 
 # ─── Fichiers temporaires moviepy ─────────────────────────────────────────────
 TEMP_MPY_wvf_snd.mp3
+
+# ─── fichier json ─────────────────────────
+client_secret_477427506493-evu8o2vat1vq8p5eqq3k3dtran3klgo4.apps.googleusercontent.com.json
