@@ -8,7 +8,6 @@ videos/
 
 # ─── Variables d'environnement et secrets OAuth ──────────────────────────────
 .env
-client_secret.json   # credentials Google OAuth2 — NE PAS VERSIONNER
 token.json           # token OAuth2 YouTube — NE PAS VERSIONNER
 
 # ─── Python ───────────────────────────────────────────────────────────────────

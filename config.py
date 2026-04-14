@@ -35,7 +35,7 @@ except ImportError:
 class Config:
     # ── Valeurs simples (surchargées via variables d'environnement) ───────────
     csv_filename:     str   = field(default_factory=lambda: os.environ.get("CSV_FILENAME", "measurements_withoutEnclosedObject.csv"))
-    video_duration_s: int   = field(default_factory=lambda: int(os.environ.get("VIDEO_DURATION_SECONDS", "60")))
+    video_duration_s: int   = field(default_factory=lambda: int(os.environ.get("VIDEO_DURATION_SECONDS", "30")))
     target_fps:       int   = field(default_factory=lambda: int(os.environ.get("TARGET_FPS", "1")))
     video_fps:        int   = field(default_factory=lambda: int(os.environ.get("VIDEO_FPS", "2")))
     img_width:        int   = field(default_factory=lambda: int(os.environ.get("IMG_WIDTH", "900")))
