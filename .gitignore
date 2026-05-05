@@ -19,6 +19,7 @@ __pycache__/
 dist/
 build/
 .eggs/
+generate_token.py
 
 # ─── Environnements virtuels ──────────────────────────────────────────────────
 .venv/

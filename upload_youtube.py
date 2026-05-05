@@ -18,6 +18,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from google.auth.exceptions import RefreshError
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -111,6 +113,18 @@ def _build_youtube_client() -> object:
         token_info,
         scopes=["https://www.googleapis.com/auth/youtube.upload"],
     )
+
+    # Échec immédiat si le refresh_token est invalide/révoqué
+    try:
+        if not creds.valid:
+            creds.refresh(Request())
+    except RefreshError as exc:
+        raise RuntimeError(
+            "Jeton YouTube invalide/expiré/révoqué (invalid_grant). "
+            "Regénérez token.json via generate_token.py et mettez à jour le secret "
+            "YOUTUBE_TOKEN_JSON."
+        ) from exc
+
     return build("youtube", "v3", credentials=creds)
 
 
