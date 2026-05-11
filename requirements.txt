@@ -3,6 +3,7 @@ numpy>=1.26
 matplotlib>=3.8
 contextily>=1.6
 pyproj>=3.6
+moviepy>=1.0
 python-dotenv>=1.0
 google-api-python-client>=2.120
 google-auth-oauthlib>=1.2

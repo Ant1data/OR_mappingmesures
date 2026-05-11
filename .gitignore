@@ -8,7 +8,8 @@ videos/
 
 # ─── Variables d'environnement et secrets OAuth ──────────────────────────────
 .env
-token.json           # token OAuth2 YouTube — NE PAS VERSIONNER
+token.json           
+client_secret.json
 
 # ─── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
