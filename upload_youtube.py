@@ -128,6 +128,10 @@ def _build_youtube_client() -> object:
     return build("youtube", "v3", credentials=creds)
 
 
+def _is_optional_upload_enabled() -> bool:
+    return os.environ.get("YOUTUBE_UPLOAD_OPTIONAL", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def main() -> int:
     args = parse_args()
 
@@ -154,7 +158,13 @@ def main() -> int:
     description = f"{meta['description_extra']}\n\n{_BASE_DESCRIPTION}"
 
     # ── Client YouTube OAuth2 ─────────────────────────────────────────────────
-    youtube = _build_youtube_client()
+    try:
+        youtube = _build_youtube_client()
+    except RuntimeError as exc:
+        if _is_optional_upload_enabled():
+            log.warning("Upload YouTube ignoré : %s", exc)
+            return 0
+        raise
 
     # ── Upload ────────────────────────────────────────────────────────────────
     log.info("Upload YouTube : %s (%s)…", title, args.privacy)
