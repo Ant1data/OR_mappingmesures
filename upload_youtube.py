@@ -119,11 +119,24 @@ def _build_youtube_client() -> object:
         if not creds.valid:
             creds.refresh(Request())
     except RefreshError as exc:
-        raise RuntimeError(
-            "Jeton YouTube invalide/expiré/révoqué (invalid_grant). "
-            "Regénérez token.json via generate_token.py et mettez à jour le secret "
-            "YOUTUBE_TOKEN_JSON."
-        ) from exc
+        error_msg = (
+            "\n"
+            "🚨 JETON YOUTUBE EXPIRÉ / RÉVOQUÉ (invalid_grant)\n"
+            "\n"
+            "Cause probable : Le token n'a pas été rafraîchi depuis >6 mois.\n"
+            "Google révoque automatiquement les tokens inutilisés.\n"
+            "\n"
+            "💡 SOLUTION (à exécuter en local, sur votre ordinateur) :\n"
+            "   1. python generate_token.py\n"
+            "   2. Copiez le contenu du fichier token.json\n"
+            "   3. Allez sur : https://github.com/<owner>/<repo>/settings/secrets/actions\n"
+            "   4. Cliquez sur YOUTUBE_TOKEN_JSON → Update secret\n"
+            "   5. Collez le contenu entier de token.json\n"
+            "   6. Relancez le workflow (workflow_dispatch)\n"
+            "\n"
+            "📖 Documentation : PROBLEME_TOKEN_EXPLICATION.md\n"
+        )
+        raise RuntimeError(error_msg) from exc
 
     return build("youtube", "v3", credentials=creds)
 

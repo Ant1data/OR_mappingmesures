@@ -128,3 +128,28 @@ Voir `.env.example` pour la liste complète.
 ## Licence
 
 À définir.
+
+---
+
+## 🔐 Troubleshooting : Erreurs de token YouTube
+
+Si vous rencontrez l'erreur `invalid_grant` lors du GitHub Action mensuel :
+
+```
+RuntimeError: Jeton YouTube expiré/révoqué (invalid_grant)
+```
+
+**Cause** : Les tokens OAuth2 Google expirent après 6 mois sans utilisation. Ce workflow mensuel rend le token invalide régulièrement.
+
+**Solutions** :
+1. **[Guide rapide (5 min)](./GUIDE_RAPIDE_TOKEN.md)** → Regénérer le token
+2. **[Documentation complète](./PROBLEME_TOKEN_EXPLICATION.md)** → Implémenter la prévention automatique
+
+**Installation recommandée** (empêche définitivement l'expiration) :
+```bash
+git add .github/workflows/refresh-token.yml .github/scripts/refresh_token.py
+git commit -m "feat: auto-refresh YouTube token daily"
+git push
+```
+
+Le dépôt inclut désormais un workflow quotidien qui vérifie et rafraîchit le token automatiquement. ✓

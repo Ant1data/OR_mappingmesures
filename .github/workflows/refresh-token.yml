@@ -1,0 +1,66 @@
+name: Rafraîchir le token YouTube (prévention expiration)
+
+on:
+  # Chaque jour à 06h00 UTC
+  schedule:
+    - cron: "0 6 * * *"
+  
+  # Permettre un lancement manuel pour tester
+  workflow_dispatch:
+
+jobs:
+  refresh-token:
+    name: Vérifier et rafraîchir le token YouTube
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────────────────
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      # ── 2. Python ──────────────────────────────────────────────────────────
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ── 3. Dépendances ─────────────────────────────────────────────────────
+      - name: Installer les dépendances
+        run: pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      # ── 4. Rafraîchir le token ─────────────────────────────────────────────
+      - name: Vérifier et rafraîchir le token YouTube
+        env:
+          YOUTUBE_TOKEN_JSON: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+        run: python .github/scripts/refresh_token.py
+        continue-on-error: true
+
+      # ── 5. Créer une issue si le token est expiré ──────────────────────────
+      - name: Créer une issue en cas d'expiration du token
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "🚨 Token YouTube expiré — action requise",
+              body: `
+            Le token YouTube a expiré ou est invalide.
+
+            **Action requise :**
+            1. Exécutez localement : \`python generate_token.py\`
+            2. Copiez le contenu de \`token.json\`
+            3. Allez dans Settings → Secrets and variables → Actions
+            4. Mettez à jour le secret \`YOUTUBE_TOKEN_JSON\`
+            5. Relancez ce workflow (workflow_dispatch)
+
+            **Détails :**
+            - Workflow : ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+            - Erreur : Token invalide/expiré/révoqué (invalid_grant)
+
+            [Voir la documentation](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/PROBLEME_TOKEN_EXPLICATION.md)
+              `.trim(),
+              labels: ["🔑 token", "🚨 urgent"],
+            });
